@@ -19,4 +19,5 @@ def plot_trajectory(optimal_vars, N, title="Trajectory"):
     plt.ylabel('State/Control Variables')
     plt.legend()
     plt.title('Optimal Trajectories')
-    plt.show()
+    # plt.show()
+    plt.savefig(f"outputs/{title}.png")

@@ -3,8 +3,9 @@ from cyipopt import minimize_ipopt
 from jax import jit, grad, hessian, jacfwd, jacrev
 import jax.numpy as jnp
 from config import N
-from Untils import objective, dynamics, boundary_conditions
+from Untils import objective_quad, objective_time, dynamics, boundary_conditions
 from post_process import plot_trajectory
+import os
 
 # Initial guess of states
 x0 = np.zeros(N+1)
@@ -35,7 +36,7 @@ bounds = [(-np.inf, np.inf)]*(N+1) + [(-np.inf, np.inf)]*(N+1) \
 # ---- Compute objective, constraints, and their derivatives ----
 
 # JIT compile the objective function, dynamics, and boundary conditions
-obj_jit = jit(objective)
+obj_jit = jit(objective_time)
 
 con_dyn_jit = jit(dynamics)
 
@@ -76,6 +77,9 @@ result = minimize_ipopt(
 # Extract results
 optimal_vars = result.x
 optimal_t_f = optimal_vars[-1]
+
+# Create outputs directory if it doesn't exist
+os.makedirs("outputs", exist_ok=True)
 
 # Post-process the results
 plot_trajectory(optimal_vars, N, title="Optimal Trajectory")

@@ -2,7 +2,7 @@ import jax.numpy as jnp
 from config import N, c1, c2, m, g, x_0, y_0, u_0, v_0, theta_0, x_f, y_f, u_f, v_f, theta_f
 
 # Objective function: Qudratic cost on control derivatives
-def objective(vars):
+def objective_quad(vars):
     t_f = vars[-1]
     U1 = vars[5*(N+1):6*(N+1)]
     U2 = vars[6*(N+1):7*(N+1)]
@@ -26,6 +26,10 @@ def objective(vars):
     
     return t_f + U_dot_norm_sq
 
+
+# time optimization objective
+def objective_time(vars):
+    return vars[-1]
 
 # Define the dynamics constraints using Hermite-Simpson method
 def dynamics(vars):
