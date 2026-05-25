@@ -8,30 +8,44 @@ from post_process import plot_trajectory
 import os
 
 # Initial guess of states
-x0 = np.zeros(N+1)
-y0 = np.zeros(N+1)
-u0 = np.zeros(N+1)
-v0 = np.zeros(N+1)
+x0 = np.zeros(N + 1)
+y0 = np.zeros(N + 1)
+u0 = np.zeros(N + 1)
+v0 = np.zeros(N + 1)
 
 # Initial guess of control inputs
-theta0 = np.zeros(N+1)
-U1_0 = np.zeros(N+1)
-U2_0 = np.zeros(N+1)
+theta0 = np.zeros(N + 1)
+U1_0 = np.zeros(N + 1)
+U2_0 = np.zeros(N + 1)
 
 # Initial guess of final time
 tf0 = 10
 
 # Convert initial guess to JAX arrays
-initial_guess = jnp.concatenate([
-    jnp.array(u0), jnp.array(v0), jnp.array(x0), jnp.array(y0), 
-    jnp.array(theta0), jnp.array(U1_0), jnp.array(U2_0), jnp.array([tf0])
-])
+initial_guess = jnp.concatenate(
+    [
+        jnp.array(u0),
+        jnp.array(v0),
+        jnp.array(x0),
+        jnp.array(y0),
+        jnp.array(theta0),
+        jnp.array(U1_0),
+        jnp.array(U2_0),
+        jnp.array([tf0]),
+    ]
+)
 
 # Bounds for variables
-bounds = [(-np.inf, np.inf)]*(N+1) + [(-np.inf, np.inf)]*(N+1) \
-         + [(0, np.inf)]*(N+1) + [(0, np.inf)]*(N+1) \
-         + [(-np.inf, np.inf)]*(N+1) + [(0.05, 1)]*(N+1) \
-         + [(-1, 1)]*(N+1) + [(0, np.inf)]
+bounds = (
+    [(-np.inf, np.inf)] * (N + 1)
+    + [(-np.inf, np.inf)] * (N + 1)
+    + [(0, np.inf)] * (N + 1)
+    + [(0, np.inf)] * (N + 1)
+    + [(-np.inf, np.inf)] * (N + 1)
+    + [(0.05, 1)] * (N + 1)
+    + [(-1, 1)] * (N + 1)
+    + [(0, np.inf)]
+)
 
 # ---- Compute objective, constraints, and their derivatives ----
 
@@ -42,17 +56,18 @@ con_dyn_jit = jit(dynamics)
 
 con_bc_jit = jit(boundary_conditions)
 
+
 # Define the gradient (Jacobian) and Hessian of the objective function
 def objective_gradient(vars):
     return grad(obj_jit)(vars)
 
+
 objective_grad_jit = jit(objective_gradient)
 
+
 def all_constraints(vars):
-    return jnp.concatenate([
-        dynamics(vars),
-        boundary_conditions(vars)
-    ])
+    return jnp.concatenate([dynamics(vars), boundary_conditions(vars)])
+
 
 con_all_jit = jit(all_constraints)
 
@@ -68,10 +83,7 @@ result = minimize_ipopt(
         "fun": con_all_jit,
         "jac": constraints_jacobian,
     },
-    options={
-        "disp": 5,
-        "max_iter": 500
-    }
+    options={"disp": 5, "max_iter": 500},
 )
 
 # Extract results

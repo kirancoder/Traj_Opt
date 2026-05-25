@@ -15,7 +15,7 @@ x_0 = 2.0
 y_0 = 10.0
 u_0 = 0.0
 v_0 = 0.0
-theta_0 = jnp.pi / 10 
+theta_0 = jnp.pi / 10
 
 # Final conditions
 x_f = 0.0
