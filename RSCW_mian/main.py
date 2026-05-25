@@ -2,7 +2,9 @@
 import os
 import numpy as np
 import pandas as pd
-from scipy.optimize import minimize
+# from scipy.optimize import minimize
+from cyipopt import minimize_ipopt
+from jax import jit, grad, jacfwd, jacrev
 from dynamics import dynamics
 from boundary_conditions import boundary_conditions
 
@@ -34,6 +36,7 @@ bounds = [(-np.inf, np.inf)]*(N+1) + [(0, np.inf)]*(N+1) + [(-np.inf, np.inf)]*(
 # Define the new objective function
 # main.py
 
+@jit
 def objective(vars):
     U1 = vars[6*(N+1):7*(N+1)]
     U2 = vars[7*(N+1):8*(N+1)]
@@ -82,6 +85,7 @@ def objective(vars):
 
 
 # Combine dynamics and boundary conditions into a single constraint function
+
 def constraints(vars):
     dyn_res = dynamics(vars, N, c1, c2, c3, g)
     bond_res = boundary_conditions(vars, N)
@@ -94,7 +98,7 @@ cons = {
 }
 
 # Solve the problem
-result = minimize(objective, 
+result = minimize_ipopt(objective, 
                   initial_guess, 
                   method='trust-constr', 
                   constraints=cons,
